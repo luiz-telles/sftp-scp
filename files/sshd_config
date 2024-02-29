@@ -13,10 +13,11 @@ PermitRootLogin no
 X11Forwarding no
 AllowTcpForwarding no
 
-# Force sftp and chroot jail
-Subsystem sftp internal-sftp
-ForceCommand internal-sftp
-ChrootDirectory %h
+# Force sftp and scp  chroot jail
+Subsystem sftp /usr/lib/openssh/sftp-server
+#ForceCommand internal-sftp
+ForceCommand /usr/local/bin/permit-scp.sh
+#ChrootDirectory %h
 
 # Enable this for more logs
 #LogLevel VERBOSE
