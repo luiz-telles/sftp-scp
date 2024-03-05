@@ -23,9 +23,9 @@ Easy to use SFTP ([SSH File Transfer Protocol](https://en.wikipedia.org/wiki/SSH
   - Directory names at the end will be created under user's home directory with
     write permission, if they aren't already present.
 - Mount volumes
-  - The users are chrooted to their home directory, so you can mount the
+  - The users are chrooted to /home/rootSSHD directory, so you can mount the
     volumes in separate directories inside the user's home directory
-    (/home/user/**mounted-directory**) or just mount the whole **/home** directory.
+    (/home/rootSSHD/home/user/**mounted-directory**) or just mount the whole **/user** directory.
     Just remember that the users can't create new files directly under their
     own home directory, so make sure there are at least one subdirectory if you
     want them to upload files.
@@ -47,7 +47,7 @@ Let's mount a directory and set UID:
 
 ```
 docker run \
-    -v <host-dir>/upload:/home/foo/upload \
+    -v <host-dir>/upload:/home/rootSSHD/home/foo/upload \
     -p 2222:22 -d atmoz/sftp \
     foo:pass:1001
 ```
@@ -58,7 +58,7 @@ docker run \
 sftp:
     image: atmoz/sftp
     volumes:
-        - <host-dir>/upload:/home/foo/upload
+        - <host-dir>/upload:/home/rootSSHD/home/foo/upload
     ports:
         - "2222:22"
     command: foo:pass:1001
@@ -91,7 +91,7 @@ Add `:e` behind password to mark it as encrypted. Use single quotes if using ter
 
 ```
 docker run \
-    -v <host-dir>/share:/home/foo/share \
+    -v <host-dir>/share:/home/rootSSHD/home/foo/share \
     -p 2222:22 -d atmoz/sftp \
     'foo:$1$0G2g0GSt$ewU0t6GXG15.0hWoOX8X9.:e:1001'
 ```
@@ -107,7 +107,7 @@ Mount public keys in the user's `.ssh/keys/` directory. All keys are automatical
 docker run \
     -v <host-dir>/id_rsa.pub:/home/foo/.ssh/keys/id_rsa.pub:ro \
     -v <host-dir>/id_other.pub:/home/foo/.ssh/keys/id_other.pub:ro \
-    -v <host-dir>/share:/home/foo/share \
+    -v <host-dir>/share:/home/rootSSHD/home/foo/share \
     -p 2222:22 -d atmoz/sftp \
     foo::1001
 ```
@@ -120,7 +120,7 @@ This container will generate new SSH host keys at first run. To avoid that your 
 docker run \
     -v <host-dir>/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key \
     -v <host-dir>/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key \
-    -v <host-dir>/share:/home/foo/share \
+    -v <host-dir>/share:/home/rootSSHD/home/foo/share \
     -p 2222:22 -d atmoz/sftp \
     foo::1001
 ```

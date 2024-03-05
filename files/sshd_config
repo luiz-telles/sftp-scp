@@ -17,7 +17,7 @@ AllowTcpForwarding no
 Subsystem sftp /usr/lib/openssh/sftp-server
 #ForceCommand internal-sftp
 ForceCommand /usr/local/bin/permit-scp.sh
-#ChrootDirectory %h
+ChrootDirectory /home/rootSSHD
 
 # Enable this for more logs
 #LogLevel VERBOSE

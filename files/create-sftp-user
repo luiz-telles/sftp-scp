@@ -66,9 +66,31 @@ if [ -n "$gid" ]; then
 fi
 
 useradd "${useraddOptions[@]}" "$user"
-mkdir -p "/home/$user"
-chown root:root "/home/$user"
-chmod 755 "/home/$user"
+mkdir -p "/home/rootSSHD/"
+chown root:root "/home/rootSSHD"
+chmod 755 "/home/rootSSHD"
+
+chr=/home/rootSSHD/
+myBinaries=("sh" "/usr/lib/openssh/sftp-server" "scp" )
+for bin in ${myBinaries[@]}; do
+  pathBin=`which $bin`
+  cp -v --parents "$pathBin" "${chr}"
+  list="$(ldd $pathBin | awk '{if ($2=="=>") print $3 ;else print $1}')"
+  for item in `echo "$list" | sort| uniq`
+  do
+   cp -v --parents "$item" "${chr}" || :
+  done
+done
+
+cp --parents /usr/local/bin/permit-scp.sh ${chr}
+mkdir ${chr}/dev
+mknod ${chr}/dev/null c 1 3
+chmod 666 ${chr}/dev/null
+cp --parents /etc/passwd /lib/x86_64-linux-gnu/libnss_files.so.2  ${chr}/
+mkdir -p "/home/rootSSHD/home/$user"
+chown $user "/home/rootSSHD/home/$user"
+chmod 700 "/home/rootSSHD/home/$user"
+
 
 # Retrieving user id to use it in chown commands instead of the user name
 # to avoid problems on alpine when the user name contains a '.'
@@ -101,7 +123,7 @@ fi
 if [ -n "$dir" ]; then
     IFS=',' read -ra dirArgs <<< "$dir"
     for dirPath in "${dirArgs[@]}"; do
-        dirPath="/home/$user/$dirPath"
+        dirPath="/home/rootSSHD/home/$user/$dirPath"
         if [ ! -d "$dirPath" ]; then
             log "Creating directory: $dirPath"
             mkdir -p "$dirPath"
