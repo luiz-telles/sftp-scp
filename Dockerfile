@@ -11,11 +11,13 @@ RUN apt-get update && \
     mkdir -p /var/run/sshd && \
     rm -f /etc/ssh/ssh_host_*key*
 
-
+COPY files/create-chrootdir.sh /usr/local/bin/
 COPY files/sshd_config /etc/ssh/sshd_config
 COPY files/create-sftp-user /usr/local/bin/
 COPY files/permit-scp.sh /usr/local/bin/
 COPY files/entrypoint /
+
+RUN /usr/local/bin/create-chrootdir.sh
 
 EXPOSE 22
 
